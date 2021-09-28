@@ -49,7 +49,7 @@ class cronjob_quota_notify extends cronjob {
 
 	public function onRunJob() {
 		global $app, $conf;
-		
+
 		/* used for all monitor cronjobs */
 		$app->load('monitor_tools');
 		$this->_tools = new monitor_tools();
@@ -236,7 +236,7 @@ class cronjob_quota_notify extends cronjob {
 
 						//* Send quota notifications
 						if(($web_config['overquota_notify_admin'] == 'y' || $web_config['overquota_notify_client'] == 'y') && $send_notification == true) {
-							$app->dbmaster->datalogUpdate('web_domain', array("last_quota_notification" => array("SQL" => "CURDATE()")), 'domain_id', $rec['domain_id']);
+							$app->dbmaster->datalogUpdate('web_domain', array("last_quota_notification" => date('Y-m-d')), 'domain_id', $rec['domain_id']);
 
 							$placeholders = array('{domain}' => $rec['domain'],
 								'{admin_mail}' => ($global_config['admin_mail'] != ''? $global_config['admin_mail'] : 'root'),
@@ -365,7 +365,7 @@ class cronjob_quota_notify extends cronjob {
 						elseif($mail_config['overquota_notify_freq'] > 0 && $rec['notified_before'] >= $mail_config['overquota_notify_freq']) $send_notification = true;
 
 						if(($mail_config['overquota_notify_admin'] == 'y' || $mail_config['overquota_notify_client'] == 'y') && $send_notification == true) {
-							$app->dbmaster->datalogUpdate('mail_user', array("last_quota_notification" => array("SQL" => "CURDATE()")), 'mailuser_id', $rec['mailuser_id']);
+							$app->dbmaster->datalogUpdate('mail_user', array("last_quota_notification" => date('Y-m-d')), 'mailuser_id', $rec['mailuser_id']);
 
 							$placeholders = array('{email}' => $rec['email'],
 								'{admin_mail}' => ($global_config['admin_mail'] != ''? $global_config['admin_mail'] : 'root'),
@@ -410,12 +410,12 @@ class cronjob_quota_notify extends cronjob {
 				$monitor_data = array();
 				foreach ($tmp_rec as $tmp_mon) {
 					$tmp_array = unserialize($app->db->unquote($tmp_mon['data']));
-					if(is_array($tmp_array)) 
+					if(is_array($tmp_array))
 						foreach($tmp_array as $sys_groupid => $data)
 							$monitor_data[$data['sys_groupid']][] = $data;
 				}
 				//* remove duplicates from monitor-data
-				foreach($monitor_data as $_monitor_data) 
+				foreach($monitor_data as $_monitor_data)
 					$monitor_data[$_monitor_data[0]['sys_groupid']]=array_map("unserialize", array_unique(array_map("serialize", $_monitor_data)));
 			}
 
@@ -452,7 +452,7 @@ class cronjob_quota_notify extends cronjob {
 
 									//* Send quota notifications
 									if(($web_config['overquota_db_notify_admin'] == 'y' || $web_config['overquota_db_notify_client'] == 'y') && $send_notification == true) {
-										$app->dbmaster->datalogUpdate('web_database', array("last_quota_notification" => array("SQL" => "CURDATE()")), 'database_id', $rec['database_id']);
+										$app->dbmaster->datalogUpdate('web_database', array("last_quota_notification" => date('Y-m-d')), 'database_id', $rec['database_id']);
 										$placeholders = array(
 											'{database_name}' => $rec['database_name'],
 											'{admin_mail}' => ($global_config['admin_mail'] != ''? $global_config['admin_mail'] : 'root'),
@@ -492,11 +492,11 @@ class cronjob_quota_notify extends cronjob {
 										$recipients = array();
 
 										//* send email to admin
-										if($global_config['admin_mail'] != '' && $web_config['overquota_db_notify_admin'] == 'y') 
+										if($global_config['admin_mail'] != '' && $web_config['overquota_db_notify_admin'] == 'y')
 											$recipients[] = $global_config['admin_mail'];
 
 										//* Send email to client
-										if($web_config['overquota_db_notify_client'] == 'y' && $client['email'] != '') 
+										if($web_config['overquota_db_notify_client'] == 'y' && $client['email'] != '')
 											$recipients[] = $client['email'];
 
 										$this->_tools->send_notification_email('db_quota_ok_notification', $placeholders, $recipients);
@@ -507,7 +507,7 @@ class cronjob_quota_notify extends cronjob {
 
 							}
 
-						}   
+						}
 
 					}
 

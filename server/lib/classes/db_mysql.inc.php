@@ -171,14 +171,10 @@ class db
 					} elseif(is_null($sValue) || (is_string($sValue) && (strcmp($sValue, '#NULL#') == 0))) {
 						$sTxt = 'NULL';
 					} elseif(is_array($sValue)) {
-						if(isset($sValue['SQL'])) {
-							$sTxt = $sValue['SQL'];
-						} else {
-							$sTxt = '';
-							foreach($sValue as $sVal) $sTxt .= ',\'' . $this->escape($sVal) . '\'';
-							$sTxt = '(' . substr($sTxt, 1) . ')';
-							if($sTxt == '()') $sTxt = '(0)';
-						}
+						$sTxt = '';
+						foreach($sValue as $sVal) $sTxt .= ',\'' . $this->escape($sVal) . '\'';
+						$sTxt = '(' . substr($sTxt, 1) . ')';
+						if($sTxt == '()') $sTxt = '(0)';
 					} else {
 						$sTxt = '\'' . $this->escape($sValue) . '\'';
 					}
@@ -742,7 +738,7 @@ class db
 			foreach($insert_data as $key => $val) {
 				$key_str .= '??,';
 				$params[] = $key;
-				
+
 				$val_str .= '?,';
 				$v_params[] = $val;
 			}
@@ -756,7 +752,7 @@ class db
 			$this->query("INSERT INTO ?? $insert_data_str", $tablename);
 			$app->log("deprecated use of passing values to datalogInsert() - table " . $tablename, 1);
 		}
-		
+
 		$old_rec = array();
 		$index_value = $this->insertID();
 		if(!$index_value && isset($insert_data[$index_field])) {
