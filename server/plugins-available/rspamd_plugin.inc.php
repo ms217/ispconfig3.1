@@ -94,10 +94,10 @@ class rspamd_plugin {
 		}
 		
 		$use_data = 'new';
-		if(substr($event_name, -7) === 'delete') {
+		if(substr($event_name, -7) === '_delete') {
 			$mode = 'delete';
 			$use_data = 'old';
-		} elseif(substr($event_name, -7) === 'insert') {
+		} elseif(substr($event_name, -7) === '_insert') {
 			$mode = 'insert';
 		} else {
 			$mode = 'update';
@@ -131,7 +131,11 @@ class rspamd_plugin {
 		$is_domain = false;
 		$email_address = $data[$use_data][$identifier];
 		$settings_name =  $email_address;
-		if(!$email_address) {
+		if($email_address === '*@' || $email_address === '@') {
+			// we will ignore those global targets
+			$app->log('Ignoring @ spamfilter_user as rspamd does not support it this way.', LOGLEVEL_DEBUG);
+			return;
+		} elseif(!$email_address) {
 			// problem reading identifier
 			$app->log('Empty email address in rspamd_plugin from identifier: ' . $use_data . '/' . $identifier, LOGLEVEL_WARN);
 			return;
@@ -145,7 +149,7 @@ class rspamd_plugin {
 		
 		if($settings_name == '') {
 			// missing settings file name
-			$app->log('Empty email address in rspamd_plugin from identifier: ' . $use_data . '/' . $identifier, LOGLEVEL_WARN);
+			$app->log('Empty rspamd identifier in rspamd_plugin from identifier: ' . $use_data . '/' . $identifier, LOGLEVEL_WARN);
 			return;
 		}
 		
