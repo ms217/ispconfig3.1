@@ -306,6 +306,11 @@ class monitor_tools {
 			$distver = 'Unknown';
 			$distid = 'centos53';
 			$distbaseid = 'fedora';
+                } elseif(stristr($content, 'CloudLinux Server release 6') || stristr($content, 'CloudLinux release 6')) {
+                        $distname = 'CentOS';
+                        $distver = 'Unknown';
+                        $distid = 'centos53';
+                        $distbaseid = 'fedora';
 		} elseif(stristr($content, 'CentOS Linux release 7')) {
 			preg_match_all('/([0-9]{1,2})\.?([0-9]{0,2})\.?([0-9]*)/', $content, $version);
 			$distname = 'CentOS';
