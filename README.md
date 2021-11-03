@@ -1,8 +1,9 @@
 # ISPConfig - Hosting Control Panel
 
-Nightly (master): [![pipeline status](https://git.ispconfig.org/ispconfig/ispconfig3/badges/master/pipeline.svg)](https://git.ispconfig.org/ispconfig/ispconfig3/commits/master)   
-Stable branch: [![pipeline status](https://git.ispconfig.org/ispconfig/ispconfig3/badges/stable-3.1/pipeline.svg)](https://git.ispconfig.org/ispconfig/ispconfig3/commits/stable-3.1)
-
+ISPConfig 3.1 Repository
+Even if this ISPC 3.1 repository may provide a bit more security
+for the last ISPConfig 3.1.15p3 release with some additional minor bugfixes
+the UPGRADE to a maintained version of ISPConfig is very strongly RECOMMENDED!
 
 - Manage multiple servers from one control panel
 - Web server management (Apache2 and nginx)
