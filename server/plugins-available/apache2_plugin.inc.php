@@ -1696,10 +1696,9 @@ class apache2_plugin {
 		//* Add vhost for IPv6 IP
 		if($data['new']['ipv6_address'] != '') {
 			//* rewrite ipv6 on mirrors
-			/* chang $conf to $web_config */
-			if ($web_config['serverconfig']['web']['vhost_rewrite_v6'] == 'y') {
-				if (isset($web_config['serverconfig']['server']['v6_prefix']) && $web_config['serverconfig']['server']['v6_prefix'] <> '') {
-					$explode_v6prefix=explode(':', $web_config['serverconfig']['server']['v6_prefix']);
+			if (isset($conf['serverconfig']['web']['vhost_rewrite_v6']) && $conf['serverconfig']['web']['vhost_rewrite_v6'] == 'y') {
+				if (isset($conf['serverconfig']['server']['v6_prefix']) && $conf['serverconfig']['server']['v6_prefix'] <> '') {
+					$explode_v6prefix=explode(':', $conf['serverconfig']['server']['v6_prefix']);
 					$explode_v6=explode(':', $data['new']['ipv6_address']);
 
 					for ( $i = 0; $i <= count($explode_v6prefix)-1; $i++ ) {
