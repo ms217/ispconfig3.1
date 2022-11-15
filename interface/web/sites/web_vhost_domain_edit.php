@@ -1036,6 +1036,12 @@ class page_action extends tform_actions {
 			}
 		}
 
+			// We have to set the client group id value as the client select field is hidden in this mode
+			if($is_admin) {
+				$app->tpl->setVar("client_group_id_value", $this->dataRecord["sys_groupid"], true);
+			} else {
+				$app->tpl->setVar("client_group_id_value", $_SESSION["s"]["user"]["default_group"], true);
+			}
 
 
 		if($_SESSION["s"]["user"]["typ"] != 'admin') {
