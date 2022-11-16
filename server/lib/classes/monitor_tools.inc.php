@@ -44,12 +44,12 @@ class monitor_tools {
 
 	//** Debian or Ubuntu
 	if(file_exists('/etc/debian_version')) {
-		
+
 		// Check if this is Ubuntu and not Debian
 		if (strstr(trim(file_get_contents('/etc/issue')), 'Ubuntu') || (is_file('/etc/os-release') && stristr(file_get_contents('/etc/os-release'), 'Ubuntu'))) {
-			
+
 			$issue = file_get_contents('/etc/issue');
-			
+
 			// Use content of /etc/issue file
 			if(strstr($issue,'Ubuntu')) {
 				if (strstr(trim($issue), 'LTS')) {
@@ -75,7 +75,7 @@ class monitor_tools {
 				} else {
 					$lts = "";
 				}
-				
+
 				$distname = 'Ubuntu';
 				$distid = 'debian40';
 				$distbaseid = 'debian';
@@ -87,6 +87,10 @@ class monitor_tools {
 				$mainver = $ver;
 			}
 			switch ($mainver){
+			case "20.04":
+				$relname = "(Focal Fossa)";
+				$distconfid = 'ubuntu2004';
+				break;
 			case "18.04":
 				$relname = "(Bionic Beaver)";
 				$distconfid = 'ubuntu1804';
@@ -217,6 +221,12 @@ class monitor_tools {
 			$distconfid = 'debian100';
 			$distid = 'debian60';
 			$distbaseid = 'debian';
+		} elseif(substr(trim(file_get_contents('/etc/debian_version')),0,2) == '11') {
+			$distname = 'Debian';
+			$distver = 'Bullseye';
+			$distconfid = 'debian110';
+			$distid = 'debian60';
+			$distbaseid = 'debian';
 		} elseif(strstr(trim(file_get_contents('/etc/debian_version')), '/sid')) {
 			$distname = 'Debian';
 			$distver = 'Testing';
@@ -251,8 +261,8 @@ class monitor_tools {
 			$distbaseid = 'opensuse';
 		} elseif(stristr(file_get_contents('/etc/os-release'), 'opensuse')) {
 			$content = file_get_contents('/etc/os-release');
-            preg_match_all('/NAME=\"([\w ]+)\"/m', $content, $name);
-            preg_match_all('/VERSION_ID=\"([0-9]{1,2})\.?([0-9]{0,2})\.?([0-9]*).$/m', $content, $version);
+			preg_match_all('/NAME=\"([\w ]+)\"/m', $content, $name);
+			preg_match_all('/VERSION_ID=\"([0-9]{1,2})\.?([0-9]{0,2})\.?([0-9]*).$/m', $content, $version);
 			$distname = is_array($name) ? $name[1][0] : 'openSUSE';
 			$distver = is_array($version) ? implode('.', array_filter(array($version[1][0],$version[2][0],$version[3][0]),'strlen')) : 'Unknown';
 			$distid = 'opensuse112';
@@ -266,71 +276,81 @@ class monitor_tools {
 	}
 
 
-	//** Redhat
-	elseif(file_exists('/etc/redhat-release')) {
+	//** RHEL (including compatible clones) & Fedora
+	elseif(file_exists('/etc/redhat-release') && file_exists('/etc/os-release')) {
 
-		$content = file_get_contents('/etc/redhat-release');
+		$content = file_get_contents('/etc/os-release');
 
-		if(stristr($content, 'Fedora release 9 (Sulphur)')) {
+		preg_match('/(?<=PRETTY_NAME=\").+?(?=\")/', $content, $prettyname);
+		preg_match('/(?<=NAME=\").+?(?=\")/', $content, $name);
+		preg_match('/(?<=VERSION=\").+?(?=\")/', $content, $version);
+		preg_match('/(?<=VERSION_ID=\").+?(?=\")/', $content, $versionid);
+
+		if(stristr($prettyname[0], 'Fedora 32 (Thirty Two)')) {
 			$distname = 'Fedora';
-			$distver = '9';
-			$distid = 'fedora9';
+			$distver = '32';
+			$distid = 'fedora32';
 			$distbaseid = 'fedora';
-		} elseif(stristr($content, 'Fedora release 10 (Cambridge)')) {
+		} elseif(stristr($prettyname[0], 'Fedora 33 (Thirty Three)')) {
 			$distname = 'Fedora';
-			$distver = '10';
-			$distid = 'fedora9';
+			$distver = '33';
+			$distid = 'fedora33';
 			$distbaseid = 'fedora';
-		} elseif(stristr($content, 'Fedora release 10')) {
-			$distname = 'Fedora';
-			$distver = '11';
-			$distid = 'fedora9';
+                //** RHEL 7 and compatible clones 
+		} elseif(preg_match('/^(?:7|7\.[0-9]{1,2})$/', $versionid[0])) {
+			preg_match_all('/([0-9]{1,2})\.?([0-9]{0,2})\.?([0-9]*)/', file_get_contents('/etc/redhat-release'), $centos7_version);
+			$distname = $name[0];
+			$distver = is_array($centos7_version)? implode('.', array_filter(array($centos7_version[1][0],$centos7_version[2][0],$centos7_version[3][0]),'strlen')) : $version[0];
+			$distid = 'centos72';
 			$distbaseid = 'fedora';
-		} elseif(stristr($content, 'CentOS release 5.2 (Final)')) {
-			$distname = 'CentOS';
-			$distver = '5.2';
-			$distid = 'centos52';
+		//** RHEL 8 and compatible clones
+		} elseif(preg_match('/^(?:8|8\.[0-9]{1,2})$/', $versionid[0])) {
+			$distname = $name[0];
+			$distver = $version[0];
+			$distid = 'centos80';
 			$distbaseid = 'fedora';
-		} elseif(stristr($content, 'CentOS release 5.3 (Final)')) {
-			$distname = 'CentOS';
-			$distver = '5.3';
-			$distid = 'centos53';
-			$distbaseid = 'fedora';
-		} elseif(stristr($content, 'CentOS release 5')) {
-			$distname = 'CentOS';
-			$distver = 'Unknown';
-			$distid = 'centos53';
-			$distbaseid = 'fedora';
-		} elseif(stristr($content, 'CentOS Linux release 6') || stristr($content, 'CentOS release 6')) {
-			$distname = 'CentOS';
-			$distver = 'Unknown';
-			$distid = 'centos53';
-			$distbaseid = 'fedora';
-                } elseif(stristr($content, 'CloudLinux Server release 6') || stristr($content, 'CloudLinux release 6')) {
-                        $distname = 'CentOS';
-                        $distver = 'Unknown';
-                        $distid = 'centos53';
-                        $distbaseid = 'fedora';
-		} elseif(stristr($content, 'CentOS Linux release 7')) {
-			preg_match_all('/([0-9]{1,2})\.?([0-9]{0,2})\.?([0-9]*)/', $content, $version);
-			$distname = 'CentOS';
-			$distver = is_array($version)? implode('.', array_filter(array($version[1][0],$version[2][0],$version[3][0]),'strlen')) :'Unknown';
-			$distbaseid = 'fedora';
-			$var=explode(" ", $content);
-			$var=explode(".", $var[3]);
-			$var=$var[0].".".$var[1];
-			if($var=='7.0' || $var=='7.1') {
-				$distid = 'centos70';
-			} else {
-				$distid = 'centos72';
-			}
 		} else {
 			$distname = 'Redhat';
 			$distver = 'Unknown';
 			$distid = 'fedora9';
 			$distbaseid = 'fedora';
 		}
-	}
+        //** CentOS 6
+        } elseif(file_exists('/etc/redhat-release') && !file_exists('/etc/os-release') && !file_exists('/etc/els-release')) {
+
+                $content = file_get_contents('/etc/redhat-release');
+
+                if(stristr($content, 'CentOS Linux release 6') || stristr($content, 'CentOS release 6')) {
+                        preg_match_all('/(6\.?([0-9]{0,2})\.?(\s)?([a-zA-Z()]+))$/', $content, $centos6_version);
+                        $distname = 'CentOS Linux';
+                        $distver = $centos6_version[0][0] ? $centos6_version[0][0] : '6';
+                        $distid = 'centos53';
+                        $distbaseid = 'fedora';
+                } else {
+                        $distname = 'Redhat';
+                        $distver = 'Unknown';
+                        $distid = 'fedora9';
+                        $distbaseid = 'fedora';
+                }
+        //** CentOS 6 Extended Lifecycle Support by CloudLinux
+        } elseif(file_exists('/etc/redhat-release') && file_exists('/etc/els-release') && !file_exists('/etc/os-release')) {
+
+                $content = file_get_contents('/etc/els-release');
+
+                if(stristr($content, 'CentOS Linux release 6') || stristr($content, 'CentOS release 6')) {
+                        preg_match_all('/(6)\.?([0-9]{0,2})?\.?\s([a-zA-Z(), ]+)?$/', $content, $centos6_version);
+                        $distname = 'CentOS Linux';
+                        $distver = $centos6_version[0][0] ? $centos6_version[0][0] : '6';
+                        $distid = 'centos53';
+                        $distbaseid = 'fedora';
+                } else {
+                        $distname = 'Redhat';
+                        $distver = 'Unknown';
+                        $distid = 'fedora9';
+                        $distbaseid = 'fedora';
+                }
+        }
+
 
 	//** Gentoo
 	elseif(file_exists('/etc/gentoo-release')) {
@@ -346,7 +366,7 @@ class monitor_tools {
 	} else {
 		die('Unrecognized GNU/Linux distribution');
 	}
-	
+
 	// Set $distconfid to distid, if no different id for the config is defined
 	if(!isset($distconfid)) $distconfid = $distid;
 
@@ -453,7 +473,7 @@ class monitor_tools {
 		/* Monitor MySQL Server */
 		$data['mysqlserver'] = -1; // unknown - not needed
 		if ($services['db_server'] == 1) {
-			if ($this->_checkTcp('localhost', 3306)) {
+                       if ($this->_checkTcp($conf['db_host'], $conf['db_port'])) {
 				$data['mysqlserver'] = 1;
 			} else {
 				$data['mysqlserver'] = 0;
@@ -481,11 +501,12 @@ class monitor_tools {
 		return $res;
 	}
 
-	public function _getLogData($log) {
+	public function _getLogData($log, $max_lines = 100) {
 		global $conf;
 
 		$dist = '';
 		$logfile = '';
+		$journalmatch = '';
 
 		if (@is_file('/etc/debian_version')) {
 			$dist = 'debian';
@@ -535,7 +556,7 @@ class monitor_tools {
 			if ($dist == 'debian') {
 				$logfile = '/var/log/syslog';
 			} elseif ($dist == 'redhat') {
-				$logfile = '/var/log/messages';
+				$journalmatch = ' ';
 			} elseif ($dist == 'suse') {
 				$logfile = '/var/log/messages';
 			} elseif ($dist == 'gentoo') {
@@ -552,6 +573,32 @@ class monitor_tools {
 			} elseif ($dist == 'gentoo') {
 				$logfile = '/var/log/cron';
 			}
+			break;
+		case 'log_letsencrypt':
+				$check_files = array();
+				if(file_exists($conf['ispconfig_log_dir'].'/acme.log')) {
+					$check_files[] = $conf['ispconfig_log_dir'].'/acme.log';
+				}
+				if(file_exists('/root/.acme.sh/acme.sh') && file_exists('/root/.acme.sh/acme.sh.log')) {
+					$check_files[] = '/root/.acme.sh/acme.sh.log';
+				}
+				if(file_exists('/usr/local/ispconfig/server/scripts/acme.sh') && file_exists('/usr/local/ispconfig/server/scripts/acme.sh.log')) {
+					$check_files[] = '/usr/local/ispconfig/server/scripts/acme.sh.log';
+				}
+				if(file_exists('/var/log/letsencrypt/letsencrypt.log')) {
+					$check_files[] = '/var/log/letsencrypt/letsencrypt.log';
+				}
+				$logfile = '';
+				$newest = 0;
+
+				foreach($check_files as $file) {
+					$mtime = filemtime($file);
+					if($mtime > $newest) {
+						$newest = $mtime;
+						$logfile = $file;
+					}
+				}
+				unset($check_files);
 			break;
 		case 'log_freshclam':
 			if ($dist == 'debian') {
@@ -610,24 +657,37 @@ class monitor_tools {
 			if (stristr($logfile, ';') or substr($logfile, 0, 9) != '/var/log/' or stristr($logfile, '..')) {
 				$log = 'Logfile path error.';
 			} else {
-				$log = '';
 				if (is_readable($logfile)) {
-					$fd = popen('tail -n 100 ' . escapeshellarg($logfile), 'r');
-					if ($fd) {
-						while (!feof($fd)) {
-							$log .= fgets($fd, 4096);
-							$n++;
-							if ($n > 1000)
-								break;
-						}
-						fclose($fd);
-					}
+					$log = $this->_getOutputFromExecCommand('tail -n '.intval($max_lines).' ' . escapeshellarg($logfile));
 				} else {
 					$log = 'Unable to read ' . $logfile;
 				}
 			}
+		} else {
+			if($journalmatch != ''){
+				$log = $this->_getOutputFromExecCommand('journalctl -n '.intval($max_lines).' --no-pager ' . escapeshellcmd($journalmatch));
+			}else{
+				$log = 'Unable to read logfile';
+			}
+
 		}
 
+		return $log;
+	}
+
+	private function _getOutputFromExecCommand ($command) {
+		$log = '';
+		$fd = popen($command, 'r');
+		if ($fd) {
+			$n = 0;
+			while (!feof($fd)) {
+				$log .= fgets($fd, 4096);
+				$n++;
+				if ($n > 1000)
+					break;
+			}
+			fclose($fd);
+		}
 		return $log;
 	}
 
@@ -779,7 +839,7 @@ class monitor_tools {
 	}
 
 	public function send_notification_email($template, $placeholders, $recipients) {
-		global $conf;
+		global $app, $conf;
 
 		if(!is_array($recipients) || count($recipients) < 1) return false;
 		if(!is_array($placeholders)) $placeholders = array();
@@ -796,6 +856,7 @@ class monitor_tools {
 
 		//* get mail headers, subject and body
 		$mailHeaders = '';
+		$mailFrom = '';
 		$mailBody = '';
 		$mailSubject = '';
 		$inHeader = true;
@@ -811,6 +872,16 @@ class monitor_tools {
 					$mailSubject = trim($parts[1]);
 					continue;
 				}
+				if(strtolower($parts[0]) == 'from') {
+					$mailFrom = trim($parts[1]);
+					continue;
+				}
+				if(strtolower($parts[0]) == 'cc') {
+					if (! in_array(trim($parts[1]), $recipients)) {
+						$recipients[] = trim($parts[1]);
+					}
+					continue;
+				}
 				unset($parts);
 				$mailHeaders .= trim($lines[$l]) . "\n";
 			} else {
@@ -821,17 +892,13 @@ class monitor_tools {
 
 		//* Replace placeholders
 		$mailHeaders = strtr($mailHeaders, $placeholders);
+		$mailFrom = strtr($mailFrom, $placeholders);
 		$mailSubject = strtr($mailSubject, $placeholders);
 		$mailBody = strtr($mailBody, $placeholders);
 
 		for($r = 0; $r < count($recipients); $r++) {
-			mail($recipients[$r], $mailSubject, $mailBody, $mailHeaders);
+			$app->functions->mail($recipients[$r], $mailSubject, $mailBody, $mailFrom);
 		}
-
-		unset($mailSubject);
-		unset($mailHeaders);
-		unset($mailBody);
-		unset($lines);
 
 		return true;
 	}
