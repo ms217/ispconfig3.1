@@ -32,7 +32,18 @@ class cronjob_ftplogfiles extends cronjob {
 		// Make the ftp logfiles directories world readable to enable ftp access
 		//######################################################################################################
 
-		if(is_dir('/var/log/pure-ftpd/')) exec('chmod +r /var/log/pure-ftpd/*');
+		$logfile = null;
+
+		if(is_dir('/var/log/pure-ftpd/')) {
+			exec('chmod +r /var/log/pure-ftpd/*');
+			$logfile="/var/log/pure-ftpd/transfer.log.1";
+		} elseif(is_file('/var/log/pureftpd.log')) {
+			$logfile="/var/log/pureftpd.log";
+		} else {
+			$app->log("The pure-ftpd log file could not be found.", LOGLEVEL_DEBUG);
+			return false;
+		}
+
 
 		//######################################################################################################
 		// Manage and compress ftp logfiles and create traffic statistics
