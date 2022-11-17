@@ -77,7 +77,6 @@ $liste["item"][] = array( 'field'  => "action",
 	'width'  => "",
 	'value'  => array('i' => "Insert", 'u' => "Update", 'd' => "Delete"));
 
-
 $liste["item"][] = array( 'field'  => "dbtable",
 	'datatype' => "VARCHAR",
 	'formtype' => "TEXT",
@@ -87,5 +86,13 @@ $liste["item"][] = array( 'field'  => "dbtable",
 	'width'  => "",
 	'value'  => "");
 
+$liste["item"][] = array( 'field'  => "user",
+	'datatype' => "VARCHAR",
+	'formtype' => "TEXT",
+	'op'  => "like",
+	'prefix' => "%",
+	'suffix' => "%",
+	'width'  => "",
+	'value'  => "");
 
 ?>
