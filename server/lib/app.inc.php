@@ -181,6 +181,8 @@ class app {
 
 			// Log to database
 			if($dblog === true && isset($this->dbmaster)) {
+				$server_id = $conf['server_id'];
+				$loglevel = $priority;
 
 				$message = $msg;
 				$datalog_id = (isset($this->modules->current_datalog_id) && $this->modules->current_datalog_id > 0)?$this->modules->current_datalog_id:0;
