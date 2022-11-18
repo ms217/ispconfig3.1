@@ -145,9 +145,16 @@ class app {
 
 		global $conf;
 
+		$file_line_caller = "";
+		$priority_txt = '';
+
 		switch ($priority) {
 		case 0:
-			$priority_txt = 'DEBUG';
+			$bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);	// we don't need _all_ data, so we save some processing time here (gwyneth 20220315)
+			$caller = array_shift($bt);
+			if(!empty($caller['file']) && !empty($caller['line'])) {
+				$file_line_caller = '[' . strtr(basename($caller['file'], '.php'), '_', ' ') . ':' . $caller['line'] . '] ';
+			}
 			break;
 		case 1:
 			$priority_txt = 'WARNING';
@@ -156,7 +163,8 @@ class app {
 			$priority_txt = 'ERROR';
 			break;
 		}
-		$log_msg = @date('d.m.Y-H:i').' - '.$priority_txt.' - '. $msg;
+
+		$log_msg = @date('d.m.Y-H:i') . ' - ' . $priority_txt . ' ' . $file_line_caller . '- '. $msg;
 
 		if($priority >= $conf['log_priority']) {
 			//if (is_writable($conf["log_file"])) {
@@ -173,8 +181,7 @@ class app {
 
 			// Log to database
 			if($dblog === true && isset($this->dbmaster)) {
-				$server_id = $conf['server_id'];
-				$loglevel = $priority;
+
 				$message = $msg;
 				$datalog_id = (isset($this->modules->current_datalog_id) && $this->modules->current_datalog_id > 0)?$this->modules->current_datalog_id:0;
 				if($datalog_id > 0) {
