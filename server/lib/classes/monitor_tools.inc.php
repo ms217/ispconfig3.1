@@ -470,16 +470,21 @@ class monitor_tools {
 			}
 		}
 
-		/* Monitor MySQL Server */
-		$data['mysqlserver'] = -1; // unknown - not needed
-		if ($services['db_server'] == 1) {
-                       if ($this->_checkTcp($conf['db_host'], $conf['db_port'])) {
-				$data['mysqlserver'] = 1;
-			} else {
-				$data['mysqlserver'] = 0;
-				$state = 'error'; // because service is down
-			}
-		}
+        /* Monitor MySQL Server */
+        $data['mysqlserver'] = -1; // unknown - not needed
+        if ($services['db_server'] == 1) {
+            // hail MySQL server:
+            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+            $ispcDB = mysqli_connect($conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_database'], $conf['db_port']);
+            if ($ispcDB !== false) {
+                $data['mysqlserver'] = 1;
+            } else {
+                $data['mysqlserver'] = 0;
+                $state = 'error'; // because service is down
+            }
+            mysqli_close($ispcDB);  // we can ignore the result (gwyneth 20220605)
+        }
+		
 /*
 		$data['mongodbserver'] = -1;
 		if ($this->_checkTcp('localhost', 27017)) {
