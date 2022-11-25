@@ -384,7 +384,7 @@ class ApsInstaller extends ApsBase
 					if(is_dir($this->document_root)){
 						$files = array_diff(scandir($this->document_root), array('.', '..', 'error', 'stats'));
 						foreach($files as $file){
-							if(is_dir($this->document_root.'/'.$file)){
+							if(is_dir($this->document_root.'/'.$file) && !is_link($this->document_root.'/'.$file)){
 								$app->file->removeDirectory($this->document_root.'/'.$file);
 							} else {
 								@unlink($this->document_root.'/'.$file);
