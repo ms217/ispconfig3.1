@@ -933,6 +933,9 @@ class tform_base {
 				case 'STRIPNL':
 					$returnval = str_replace(array("\n","\r"),'', $returnval);
 					break;
+				case 'NORMALIZEPATH':
+					$returnval = $app->functions->normalize_path($returnval);
+					break;		
 				default:
 					$this->errorMessage .= "Unknown Filter: ".$filter['type'];
 					break;
