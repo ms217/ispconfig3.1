@@ -935,7 +935,7 @@ class tform_base {
 					break;
 				case 'NORMALIZEPATH':
 					$returnval = $app->functions->normalize_path($returnval);
-					break;		
+					break;
 				default:
 					$this->errorMessage .= "Unknown Filter: ".$filter['type'];
 					break;

@@ -151,8 +151,10 @@ class shelluser_base_plugin {
 					}
 				}
 			
-				$app->system->chown($data['new']['dir'],$data['new']['username'],false);
-				$app->system->chgrp($data['new']['dir'],$data['new']['pgroup'],false);
+
+
+				$app->system->chown($data['new']['dir'], 'root', false);
+				$app->system->chgrp($data['new']['dir'], 'root', false);
 				
 
 				// call the ssh-rsa update function

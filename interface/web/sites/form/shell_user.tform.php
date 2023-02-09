@@ -237,7 +237,7 @@ if($_SESSION["s"]["user"]["typ"] == 'admin') {
 						'event' => 'SAVE',
 						'type' => 'NORMALIZEPATH'		
 					)
-				),				
+				),
 				'validators' => array ( 0 => array ( 	'type' => 'NOTEMPTY',
 														'errmsg'=> 'directory_error_empty'),
 										1 => array ( 	'type' => 'REGEX',
