@@ -64,6 +64,7 @@ if(isset($_POST['records']) && is_array($_POST['records'])) {
 		$val = stripslashes($val);
 		$val = preg_replace('/(^|[^\\\\])((\\\\\\\\)*)"/', '$1$2\\"', $val);
 		$val = str_replace('$', '', $val);
+		if(!preg_match("/^[a-z0-9_]+$/", $key)) die('Invalid language file key.');
 		$file_content .= '$wb['."'$key'".'] = "'.$val.'";'."\n";
 		$msg = 'File saved.';
 	}
