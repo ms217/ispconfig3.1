@@ -237,6 +237,7 @@ class letsencrypt {
 			if((isset($web_config['skip_le_check']) && $web_config['skip_le_check'] == 'y') || (isset($server_config['migration_mode']) && $server_config['migration_mode'] == 'y')) {
 				$le_domains[] = $temp_domain;
 			} else {
+				if(!@ini_get('allow_url_fopen')) $app->log('Let\' Encrypt\'s domain verification requires allow_url_fopen to be enabled!', LOGLEVEL_WARN);
 				$le_hash_check = trim(@file_get_contents('http://' . $temp_domain . '/.well-known/acme-challenge/' . $le_rnd_file));
 				if($le_hash_check == $le_rnd_hash) {
 					$le_domains[] = $temp_domain;
