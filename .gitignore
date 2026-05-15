@@ -1,7 +1,11 @@
 .idea
 /nbproject/private/
 .phplint-cache
+
+# Vim and patch specific excludes
 *.swp
+*.orig
+*.rej
 
 # macOS-specific things to exclude
 
@@ -54,3 +58,12 @@ Temporary Items
 
 # Visual Studio IDE cache/options directory
 .vs/
+
+# do not version control generated config files
+/server/lib/mysql_clientdb.conf
+/server/lib/config.inc.php
+/server/lib/config.inc.local.php
+/interface/lib/config.inc.local.php
+/install/existing_db.sql
+
+sync_config.jsonc
