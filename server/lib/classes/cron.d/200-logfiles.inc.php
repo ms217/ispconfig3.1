@@ -184,7 +184,7 @@ class cronjob_logfiles extends cronjob {
 		//######################################################################################################
 
 
-		$ispconfig_logfiles = array('ispconfig.log', 'cron.log', 'auth.log');
+		$ispconfig_logfiles = array('ispconfig.log', 'cron.log', 'auth.log', 'acme.log');
 		foreach($ispconfig_logfiles as $ispconfig_logfile) {
 			$num = $max_syslog;
 			$ispconfig_logfile = $conf['ispconfig_log_dir'].'/'.$ispconfig_logfile;
